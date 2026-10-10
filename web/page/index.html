@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiz-Template</title>
+    <link rel="stylesheet" href="/css/theme.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <div class="img"></div>
+        </div>
+        <div class="math">
+            <div class="btn add"></div>
+            <span class="num"></span>
+        </div>
+
+        <div class="whiz">
+            <button id="ipc">ipc.invoke("greet", "whiz")</button>
+            <button id="os">os.platform / os.homedir / getPath</button>
+            <button id="fs">fs.stat(index.html)</button>
+            <button id="win">window.getSize</button>
+            <button id="emit">等待 C++ emit("server-ping")</button>
+        </div>
+
+        <div class="out-view">
+            <pre><code id="out"></code></pre>
+        </div>
+    </div>
+
+    <script src="/js/index.js"></script>
+    <script src="/js/whiz.js"></script>
+</body>
+
+</html>
