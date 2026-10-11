@@ -34,6 +34,31 @@ FetchContent_Declare(whiz
   `server-ping` 事件。
 - 构建产物 `build/` 由 `.gitignore` 忽略。
 
+## 网络问题
+
+CMake 在构建时需要从网络下载依赖库。如果遇到网络问题，可以使用下面的方法解决。
+
+### URL前缀代理
+
+以下使用`https://ghproxy.net/`进行演示
+
+在执行 CMake 构建前，运行以下命令，为当前终端会话临时设置 URL 前缀代理：
+
+```shell
+export GIT_CONFIG_COUNT=1
+export GIT_CONFIG_KEY_0='url.https://ghproxy.net/https://github.com.insteadOf'
+export GIT_CONFIG_VALUE_0='https://github.com'
+
+cmake -B build -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j4
+```
+
+说明：这些环境变量仅在当前终端会话中生效，关闭终端或执行 unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 后即失效。该方式仅适用于通过 HTTPS 访问 GitHub 的场景，不适用于 SSH 地址
+
+### 使用网络代理工具
+
+你应该知道怎么办
+
 ## 许可证
 
 whiz 库采用 AGPL-3.0；本模板仅作为使用示例。
