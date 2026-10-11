@@ -11,12 +11,16 @@ include(FetchContent)
 # ---------------------------------------------------------------------------
 # 引入 whiz 库（FetchContent）
 #
-# whiz 仓库：https://github.com/yincolor/whiz.git 
-# 生产项目建议把 GIT_TAG 固定到稳定 tag / commit，避免 main 分支变动导致构建不可复现。
+# 生产项目使用远端仓库：
+#   FetchContent_Declare(whiz
+#       GIT_REPOSITORY https://github.com/yincolor/whiz.git
+#       GIT_TAG main)
+#
+# 本测试项目使用本地 whiz 源码（../../ 即 whiz 仓库根目录），不拉取远端，
+# 以便验证本地未提交的改动。测试完成后如需恢复远端拉取，请替换回上面的写法。
 # ---------------------------------------------------------------------------
 FetchContent_Declare(whiz
-    GIT_REPOSITORY https://github.com/yincolor/whiz.git
-    GIT_TAG main)
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 FetchContent_MakeAvailable(whiz)
 
 # whiz 提供的资源嵌入函数：把 web/ 下所有文件嵌入可执行文件，
