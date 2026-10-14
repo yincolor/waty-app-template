@@ -53,7 +53,7 @@ namespace
 
 // whiz-app-template：whiz 样例模板。
 //
-// 前端位于 web/，构建时由 whiz_embed_resources 嵌入到可执行文件；
+// 前端位于 web/，构建时由 whiz_embed 嵌入到可执行文件；
 // 入口页面为 page/index.html，通过 whiz 的 JS 桥（window.whiz.*）与 C++ 交互。
 // 页面底部按钮分别演示：ipc.invoke("greet") / os.* / fs.stat / window.getSize，
 // 以及 C++ 侧主动推送的 server-ping 事件。
@@ -105,6 +105,18 @@ int main()
             return nlohmann::json{{"message", "Hello, " + name + "!"}};
         });
     });
+
+//    // 测试创建重复事件响应
+//    // IPC：响应前端 window.whiz.ipc.invoke("greet", ...)。
+//    // 回调运行在线程池，可执行耗时操作。
+//    window->ipcHandle("greet", [](const nlohmann::json &args) -> std::future<nlohmann::json> {
+//        const std::string name = (args.is_array() && !args.empty() && args[0].is_string())
+//                                     ? args[0].get<std::string>()
+//                                     : "world";
+//        return std::async(std::launch::async, [name]() -> nlohmann::json {
+//            return nlohmann::json{{"message", "Hello, " + name + "!"}};
+//        });
+//    });
 
     // 事件循环：累计 50 轮后向 JS 推送一条消息（前端通过
     // window.whiz.ipc.on("server-ping", ...) 接收）。

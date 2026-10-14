@@ -19,8 +19,8 @@ FetchContent_Declare(whiz
     GIT_TAG main)
 FetchContent_MakeAvailable(whiz)
 
-# whiz 提供的资源嵌入函数：把 web/ 下所有文件嵌入可执行文件，
+# whiz_embed 在 FetchContent_MakeAvailable(whiz) 后即可直接使用：
+# 把 web/ 下所有文件生成独立资源目标（默认 whiz::embedded），
 # 并通过 embedded://root/ 协议在运行时提供（入口 HTML 由 C++ 侧决定）。
-include("${whiz_SOURCE_DIR}/cmake/whiz_embed_resources.cmake")
 
 add_subdirectory(src)
