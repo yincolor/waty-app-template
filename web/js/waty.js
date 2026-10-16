@@ -8,8 +8,8 @@ document.getElementById("ipc").onclick = async () => {
 document.getElementById("os").onclick = async () => {
     const platform = await window.waty.os.platform();
     const homedir = await window.waty.os.homedir();
-    const userData = await window.waty.os.getPath("userData");
-    out(`platform=${platform} homedir=${homedir} userData=${userData}`);
+    const userData = await window.waty.os.getPath("config");
+    out(`platform=${platform} homedir=${homedir} config=${userData}`);
 };
 
 document.getElementById("fs").onclick = async () => {
@@ -45,6 +45,18 @@ if (window.waty.ipc) {
             console.log("fs.stat /tmp: " + JSON.stringify(s));
         }).catch((e) => {
             console.error("fs.stat 错误: " + JSON.stringify(e));
+        });
+    }
+
+    if (window.waty.os) {
+        Promise.all([
+            window.waty.os.getPath("appData"),
+            window.waty.os.getPath("config"),
+            window.waty.os.getPath("executable")
+        ]).then(([appData, config, executable]) => {
+            console.log("os.getPath: appData=" + appData + " config=" + config + " executable=" + executable);
+        }).catch((e) => {
+            console.error("os.getPath 错误: " + JSON.stringify(e));
         });
     }
 }

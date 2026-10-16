@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <future>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 namespace
 {
@@ -30,6 +33,99 @@ namespace
                     missing ? "value (FAIL)" : "nullopt (ok)");
 
         return magic_ok && !missing;
+    }
+
+    // 测试 appName 严格校验：非法值必须在 Application 构造时抛出 std::invalid_argument。
+    bool test_app_name_validation()
+    {
+        const auto expect_reject = [](std::string_view name) {
+            try
+            {
+                waty::ApplicationOptions opts;
+                opts.appName = name;
+                waty::Application app(opts);
+                return false;
+            }
+            catch (const std::invalid_argument &)
+            {
+                return true;
+            }
+        };
+
+        const std::string too_long(65, 'a');
+        const bool ok = expect_reject("") &&
+                        expect_reject("Bad Name") &&
+                        expect_reject("a/b") &&
+                        expect_reject("CON") &&
+                        expect_reject("com1") &&
+                        expect_reject("LPT9") &&
+                        expect_reject(too_long);
+
+        std::printf("[waty-test] appName 严格校验: 非法输入均被拒绝=%s\n", ok ? "ok" : "FAIL");
+        return ok;
+    }
+
+    // 测试 organizationName 默认值与严格校验。
+    bool test_organization_name_validation()
+    {
+        const waty::ApplicationOptions default_opts;
+        const bool default_ok = default_opts.organizationName == "waty";
+
+        const auto expect_reject_org = [](std::string_view org) {
+            try
+            {
+                waty::ApplicationOptions opts;
+                opts.appName          = "Valid_App";
+                opts.organizationName = org;
+                waty::Application app(opts);
+                return false;
+            }
+            catch (const std::invalid_argument &)
+            {
+                return true;
+            }
+        };
+
+        const std::string too_long(65, 'a');
+        const bool reject_ok = expect_reject_org("") &&
+                               expect_reject_org("Bad Org") &&
+                               expect_reject_org("a/b") &&
+                               expect_reject_org("CON") &&
+                               expect_reject_org("LPT9") &&
+                               expect_reject_org(too_long);
+
+        std::printf("[waty-test] organizationName: default=%s invalid_rejected=%s\n",
+                    default_ok ? "waty(ok)" : "FAIL", reject_ok ? "ok" : "FAIL");
+        return default_ok && reject_ok;
+    }
+
+    // 测试 SysPath 新增/重命名后的 getPath 行为。
+    bool test_get_paths(const waty::Application &app, std::string_view org)
+    {
+        const std::string app_data = app.getPath(waty::SysPath::AppData);
+        const std::string config   = app.getPath(waty::SysPath::Config);
+        const std::string exe      = app.getPath(waty::SysPath::Executable);
+        const std::string legacy_user_data = app.getPath(waty::SysPath::UserData);
+        const std::string legacy_app_dir   = app.getPath(waty::SysPath::AppDir);
+
+#if defined(__linux__)
+        const std::string org_segment = std::string("/") + std::string(org) + "/";
+        const bool xdg_namespace_ok = app_data.find(org_segment) != std::string::npos &&
+                                      config.find(org_segment) != std::string::npos;
+#else
+        const bool xdg_namespace_ok = true;
+#endif
+
+        const bool ok = !app_data.empty() && !config.empty() && !exe.empty() &&
+                        legacy_user_data == config && legacy_app_dir == exe &&
+                        xdg_namespace_ok;
+
+        std::printf("[waty-test] getPath: appData=%s\n", app_data.c_str());
+        std::printf("[waty-test] getPath: config=%s\n", config.c_str());
+        std::printf("[waty-test] getPath: executable=%s\n", exe.c_str());
+        std::printf("[waty-test] getPath: UserData==Config / AppDir==Executable / LinuxXDG(%s)=%s => %s\n",
+                    std::string(org).c_str(), xdg_namespace_ok ? "ok" : "FAIL", ok ? "ok" : "FAIL");
+        return ok;
     }
 
     // 测试全屏与窗口边框 API：验证 setter/getter 的默认态与切换逻辑。
@@ -59,8 +155,23 @@ namespace
 // 以及 C++ 侧主动推送的 server-ping 事件。
 int main()
 {
+    if (!test_app_name_validation())
+    {
+        std::printf("[waty-test] appName 严格校验测试未通过\n");
+        return 1;
+    }
+    std::printf("[waty-test] appName 严格校验测试通过\n");
+
+    if (!test_organization_name_validation())
+    {
+        std::printf("[waty-test] organizationName 测试未通过\n");
+        return 1;
+    }
+    std::printf("[waty-test] organizationName 测试通过\n");
+
     waty::ApplicationOptions app_opts;
-    app_opts.appName = "Waty Template";
+    app_opts.appName          = "Waty_App_Template";
+    app_opts.organizationName = "Acme_Corp";
     app_opts.icon    = "resource/icon.png";         // 相对可执行文件目录（构建时复制自项目根目录 icon.png）
     app_opts.permissions.os       = true;  // 启用 os 模块（platform / homedir / getPath）
     app_opts.permissions.fs.read  = true;  // 启用文件读取（fs.stat 等）
@@ -69,6 +180,13 @@ int main()
     app_opts.permissions.log      = true;  // 转发 JS console 到 C++ 日志
 
     waty::Application app(app_opts);
+
+    if (!test_get_paths(app, "Acme_Corp"))
+    {
+        std::printf("[waty-test] getPath 测试未通过\n");
+        return 1;
+    }
+    std::printf("[waty-test] getPath 测试通过\n");
 
     // 测试 readEmbeddedFile（编译测试：不依赖图形界面即可验证嵌入资源读取）
     if (!test_read_embedded_file(app))
@@ -79,11 +197,11 @@ int main()
     std::printf("[waty-test] readEmbeddedFile 测试通过\n");
 
     waty::WebWindowOptions win_opts;
-    win_opts.title     = "Waty Template";
-    win_opts.width     = 480;
-    win_opts.height    = 720;
+    win_opts.title     = "Waty App Template";
+    win_opts.width     = 800;
+    win_opts.height    = 600;
     win_opts.minWidth  = 400;
-    win_opts.minHeight = 640;
+    win_opts.minHeight = 600;
 
     auto window = app.createWindow(win_opts);
 
