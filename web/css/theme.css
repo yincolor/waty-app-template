@@ -29,7 +29,7 @@ html {
 .logo>.img {
     flex-grow: 1;
     min-height: 10px;
-    background-image: url(/img/logo_light.png);
+    background-image: url(/img/base_image.png);
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -103,10 +103,9 @@ pre {
 }
 
 @media (prefers-color-scheme: dark) {
-    .logo>.img {
+    /* .logo>.img {
         background-image: url(/img/logo_dark.png);
-        /* 暗黑模式用白图标 */
-    }
+    } */
 
     .container {
         background-color: #232323;

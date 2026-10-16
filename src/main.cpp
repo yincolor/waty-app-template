@@ -13,16 +13,16 @@ namespace
     {
         constexpr std::uint8_t png_sig[8] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
 
-        const auto bytes = app.readEmbeddedFile("img/logo_dark.png");
+        const auto bytes = app.readEmbeddedFile("img/base_image.png");
         if (!bytes)
         {
-            std::printf("[waty-test] readEmbeddedFile(\"img/logo_dark.png\") -> nullopt (FAIL)\n");
+            std::printf("[waty-test] readEmbeddedFile(\"img/base_image.png\") -> nullopt (FAIL)\n");
             return false;
         }
 
         const bool magic_ok = bytes->size() >= sizeof(png_sig) &&
                               std::equal(png_sig, png_sig + sizeof(png_sig), bytes->begin());
-        std::printf("[waty-test] readEmbeddedFile(\"img/logo_dark.png\") size=%zu png_magic=%s\n",
+        std::printf("[waty-test] readEmbeddedFile(\"img/base_image.png\") size=%zu png_magic=%s\n",
                     bytes->size(), magic_ok ? "ok" : "FAIL");
 
         const auto missing = app.readEmbeddedFile("__no_such_resource__.bin");
