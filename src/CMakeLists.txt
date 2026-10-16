@@ -12,12 +12,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # 如果还有其他头文件目录在此追加
 )
 
-# 3. 链接 whiz 库与嵌入资源目标（whiz::whiz 由根目录 FetchContent 提供）
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE whiz::whiz whiz::embedded)
+# 3. 链接 waty 库与嵌入资源目标 ( waty::waty 由根目录 FetchContent 提供) 
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE waty::waty waty::embedded)
 
 # 4. 嵌入 web/ 静态资源
 #    web/ 在项目根目录，所以用 ${CMAKE_SOURCE_DIR}
-whiz_embed("${CMAKE_SOURCE_DIR}/web")
+waty_embed("${CMAKE_SOURCE_DIR}/web")
 
 # 5. 复制图标到可执行文件所在目录
 #    app_opts.icon 以可执行文件目录为基准
