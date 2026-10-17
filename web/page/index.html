@@ -1,39 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waty-Template</title>
+    <title>waty 组件演示</title>
     <link rel="stylesheet" href="/css/theme.css">
-
 </head>
 
 <body>
-    <div class="container">
-        <div class="logo">
-            <div class="img"></div>
-        </div>
-        <div class="math">
-            <div class="btn add"></div>
-            <span class="num"></span>
-        </div>
+    <div class="app">
+        <header class="hero">
+            <img class="app-icon" src="/img/icon.png" alt="waty 图标">
+            <div class="hero-text">
+                <h1>waty 组件演示</h1>
+                <p>waty core · waty-notify · waty-tray · 本地视频流式播放</p>
+            </div>
+            <span class="badge">embedded icon</span>
+        </header>
 
-        <div class="waty">
-            <button id="ipc">ipc.invoke("greet", "waty")</button>
-            <button id="os">os.platform / os.homedir / getPath</button>
-            <button id="fs">fs.stat(index.html)</button>
-            <button id="win">window.getSize</button>
-            <button id="emit">等待 C++ emit("server-ping")</button>
-        </div>
+        <main class="grid">
+            <section class="card">
+                <h2>waty core · 对话框</h2>
+                <p class="desc">原生消息框、文件选择（单选 / 多选）、目录选择与保存对话框。</p>
+                <div class="actions">
+                    <button id="dialog-message">原生消息框</button>
+                    <button id="dialog-open-file">选择单个文件</button>
+                    <button id="dialog-open-files">选择多个文件</button>
+                    <button id="dialog-open-dir">选择目录</button>
+                    <button id="dialog-save">保存文件对话框</button>
+                </div>
+            </section>
 
-        <div class="out-view">
-            <pre><code id="out"></code></pre>
-        </div>
+            <section class="card">
+                <h2>waty core · 系统与窗口</h2>
+                <p class="desc">os / fs / window 权限模块。</p>
+                <div class="actions">
+                    <button id="core-os">读取系统信息</button>
+                    <button id="core-win-size">读取窗口尺寸</button>
+                    <button id="core-devtools">打开 DevTools</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>waty-notify</h2>
+                <p class="desc">通过 IPC 调用 C++ 侧 <code>waty::notify::send</code>，事件回传页面。</p>
+                <div class="actions">
+                    <button id="notify-basic">发送系统通知</button>
+                    <button id="notify-actions">发送带按钮通知</button>
+                </div>
+                <div class="hint">通知动作 / 关闭 / 错误事件会写入右下角事件输出。</div>
+            </section>
+
+            <section class="card">
+                <h2>waty-tray</h2>
+                <p class="desc">托盘图标来自嵌入资源 <code>web/img/icon.png</code>。</p>
+                <div class="actions">
+                    <button id="tray-status">查看托盘状态</button>
+                </div>
+                <div id="tray-status-view" class="hint">正在查询托盘状态…</div>
+                <div class="hint">右键点击系统托盘中的 waty 图标，再点击菜单项；菜单 id / label 会打印到事件输出。</div>
+            </section>
+
+            <section class="card video-card">
+                <h2>本地视频流式播放</h2>
+                <p class="desc">
+                    <code>resource/video.mp4</code> 不是嵌入资源，而是随 <code>resource/</code>
+                    目录复制到可执行文件旁。播放使用本地 HTTP Range 服务按需读取；
+                    “fs 流式读取探测”按钮演示 <code>fs.createReadStream</code>。
+                </p>
+                <div class="actions">
+                    <button id="video-play">加载并播放</button>
+                    <button id="video-fs-probe">fs 流式读取探测</button>
+                    <button id="video-stop">停止</button>
+                </div>
+                <div id="video-status" class="hint">正在查询视频信息…</div>
+                <video id="video" controls playsinline preload="none"></video>
+            </section>
+
+            <section class="card log-card">
+                <div class="log-header">
+                    <h2>事件输出</h2>
+                    <button id="clear-log" class="secondary">清空</button>
+                </div>
+                <pre><code id="out"></code></pre>
+            </section>
+        </main>
     </div>
 
     <script src="/js/index.js"></script>
-    <script src="/js/waty.js"></script>
 </body>
 
 </html>
